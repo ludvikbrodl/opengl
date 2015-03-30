@@ -80,7 +80,7 @@ void MainGame::processInput() {
 				_gameState = GameState::EXIT;
 				break;
 			case SDL_MOUSEMOTION:
-				std::cout << event.motion.y << " " << event.motion.y << std::endl;
+				std::cout << event.motion.x << " " << event.motion.y << std::endl;
 				break;
 			default:
 				break;
