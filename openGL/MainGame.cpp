@@ -1,23 +1,18 @@
 #include "MainGame.h"
 #include <iostream>
 #include <string>
-
-void fatalError(std::string errorString) {
-	std::cout << errorString << std::endl;
-	std::cout << "Enter any key to quit...";
-	int tmp;
-	std::cin >> tmp;
-	SDL_Quit();
-	exit(1);
-}
+#include "Errors.h"
 
 
-MainGame::MainGame()
-{
+
+
+
+MainGame::MainGame() {
 	_window = nullptr;
 	_screenWidth = 1024;
 	_screenHeight = 768;
 	_gameState = GameState::PLAY;
+	_time = 0.0f;
 }
 
 
@@ -29,7 +24,7 @@ MainGame::~MainGame()
 void MainGame::run() {
 	initSystems();
 
-	_sprite.init(-1, -1, 1, 1);
+	_sprite.init(-1, -1, 2, 2);
 
 	gameLoop();
 
@@ -65,12 +60,25 @@ void MainGame::initSystems() {
 	//set background color
 	glClearColor(0.2f, 0.5f, 0.7f, 1.0f);
 
+	initShaders();
 }
+
+void MainGame::initShaders() {
+	_colorProgram.compileShaders("Shaders/colorShading.vert", "Shaders/ColorShading.frag");
+	_colorProgram.addAttribute("vertexPosition");
+	_colorProgram.addAttribute("vertexColor");
+	_colorProgram.linkShaders();
+}
+
 
 void MainGame::gameLoop() {
 	while (_gameState != GameState::EXIT) {
 		processInput();
+		_time += 0.0005f;
 		drawGame();
+		//memory leak example, enable and watch your memory blow up (ctrl shift esc in windows and check proc memory)
+		//char* str = new char[40000];
+		
 	}
 
 }
@@ -95,24 +103,24 @@ void MainGame::processInput() {
 
 //Draw the game scene with OpenGL
 void MainGame::drawGame() {
+
 	//Base depth to 
 	glClearDepth(1.0);
 	//Clear color and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//draw triangle the retarded way
-	//glEnableClientState(GL_COLOR_ARRAY);
-	/*
-	glBegin(GL_TRIANGLES);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex2f(0, 0);
-	glVertex2f(0, 1);
-	glVertex2f(1, 1);
-	glEnd();
-	*/
-	
+	_colorProgram.use();
+
+	GLuint timeLocation = _colorProgram.getUniformLocation("time");
+	glUniform1f(timeLocation, _time);
+
+
 
 	_sprite.draw();
+
+
+
+	_colorProgram.unuse();
 
 	SDL_GL_SwapWindow(_window);
 

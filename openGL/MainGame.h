@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL/SDL.h>
 #include <GL/glew.h>
+#include "GLSLProgram.h"
 
 #include <Sprite.h>
 
@@ -16,6 +17,7 @@ public:
 
 
 private:
+	void initShaders();
 	void initSystems();
 	void gameLoop();
 	void processInput();
@@ -27,5 +29,9 @@ private:
 	GameState _gameState;
 
 	Sprite _sprite;
+
+	GLSLProgram _colorProgram;
+
+	float _time;
 };
 

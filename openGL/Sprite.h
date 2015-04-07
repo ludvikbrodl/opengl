@@ -14,6 +14,7 @@ public:
 private:
 	int _x, _y, _width, _height;
 	GLuint _vboID;
+	
 
 };
 

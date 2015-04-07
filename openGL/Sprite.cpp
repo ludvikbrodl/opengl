@@ -1,5 +1,7 @@
 #include "Sprite.h"
+#include "Vertex.h"
 
+#include <cstddef>
 
 Sprite::Sprite()
 {
@@ -27,29 +29,46 @@ void Sprite::init(float x, float y, float width, float height) {
 	}
 
 	//12 points to make a square (2 triangles)
-	float vertexData[12];
+	Vertex vertexData[6];
 
 	//First triangle
 	//Top Right
-	vertexData[0] = x + width;
-	vertexData[1] = y + height;
+	vertexData[0].position.x = x + width;
+	vertexData[0].position.y = y + height;
 	//Top Left
-	vertexData[2] = x;
-	vertexData[3] = y + height;
+	vertexData[1].position.x = x;
+	vertexData[1].position.y = y + height;
 	//Bottom Left
-	vertexData[4] = x;
-	vertexData[5] = y;
+	vertexData[2].position.x = x;
+	vertexData[2].position.y = y;
 
 	//Second triangle
 	//Bottom Left
-	vertexData[6] = x;
-	vertexData[7] = y;
+	vertexData[3].position.x = x;
+	vertexData[3].position.y = y;
 	//Bottom Right
-	vertexData[8] = x + width;
-	vertexData[9] = y;
+	vertexData[4].position.x = x + width;
+	vertexData[4].position.y = y;
 	//Top Right
-	vertexData[10] = x + width;
-	vertexData[11] = y + height;
+	vertexData[5].position.x = x + width;
+	vertexData[5].position.y = y + height;
+
+	for (int i = 0; i < 6; i++) {
+		vertexData[i].color.r = 255;
+		vertexData[i].color.g = 0;
+		vertexData[i].color.b = 255;
+		vertexData[i].color.a = 255;
+	}
+
+	vertexData[1].color.r = 0;
+	vertexData[1].color.g = 0;
+	vertexData[1].color.b = 255;
+	vertexData[1].color.a = 255;
+
+	vertexData[4].color.r = 150;
+	vertexData[4].color.g = 150;
+	vertexData[4].color.b = 0;
+	vertexData[4].color.a = 150;
 
 	//Upload data to GPU memory space
 	glBindBuffer(GL_ARRAY_BUFFER, _vboID);
@@ -66,7 +85,12 @@ void Sprite::draw() {
 	glEnableVertexAttribArray(0);
 	//Specify the data to draw: (index of buffer, number of values(x and y), 
 	//data representation, norm???, stride???, innerleaved)
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	//position attribute pointer
+	//last paramenter - offset of the positions inside the struct
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+	//color attribute pointer
+	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+	
 	//GPU always works in triangles, thus using GL_Quads may not be supported on some systems.
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
